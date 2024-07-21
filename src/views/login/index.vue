@@ -3,11 +3,11 @@
     <div class="logo">
       <img
         alt="logo"
-        src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
+        src="src/assets/eb2b331a6751269ddbbdcf892be5b9e.jpg"
+        style="width: 35px"
       />
-      <div class="logo-text">Arco Design Pro</div>
+      <div class="logo-text" style="color: #1d2129">Go Easy Admin</div>
     </div>
-    <LoginBanner />
     <div class="content">
       <div class="content-inner">
         <LoginForm />
@@ -21,7 +21,7 @@
 
 <script lang="ts" setup>
   import Footer from '@/components/footer/index.vue';
-  import LoginBanner from './components/banner.vue';
+  // import LoginBanner from './components/banner.vue';
   import LoginForm from './components/login-form.vue';
 </script>
 
