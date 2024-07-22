@@ -11,15 +11,15 @@ export interface LoginRes {
   token: string;
 }
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/base/login', data);
+  return axios.post<LoginRes>('/api/base/user/login', data);
 }
 
 export function logout() {
-  return axios.post<LoginRes>('/api/base/logout');
+  return axios.post<LoginRes>('/api/system/user/logout');
 }
 
 export function getUserInfo() {
-  return axios.get<UserState>('/api/base/login/info');
+  return axios.get<UserState>('/api/system/user/login/info');
 }
 
 export function getMenuList() {
