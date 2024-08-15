@@ -9,17 +9,18 @@ export interface LoginData {
 
 export interface LoginRes {
   token: string;
+  id: number
 }
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/base/user/login', data);
+  return axios.post<LoginRes>('/sys/login/general', data);
 }
 
 export function logout() {
   return axios.post<LoginRes>('/api/system/user/logout');
 }
 
-export function getUserInfo() {
-  return axios.get<UserState>('/api/system/user/login/info');
+export function getUserInfo(userId: number) {
+  return axios.get<UserState>('/sys/login/info/1');
 }
 
 export function getMenuList() {
