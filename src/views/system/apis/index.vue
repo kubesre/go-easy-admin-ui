@@ -23,7 +23,7 @@
           >
         </a-col>
       </a-row>
-      <a-table :loading="loading" :columns="columns" :data="tables">
+      <a-table :loading="loading" :columns="columns" :data="tables" :pagination="pagination" @page-change="onPageChange">
         <template #avatar="{ record }">
           <a-avatar :src="record.avatar">
             <img
@@ -66,8 +66,6 @@ const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
 const Title = ref('');
 const tables = ref<ApisListRes[]>([]);
-const page = ref(1);
-const pageSize = ref(10);
 
 const columns = [
   {
@@ -95,11 +93,17 @@ const columns = [
     slotName: 'action',
   },
 ];
+const pagination = ref({
+  total: 0,
+  pageSize: 10,
+  current: 1,
+});
 const GetApisList = async () => {
   setLoading(true);
   try {
-    const { data } = await getApisList({page:1, limit: 10});
+    const { data } = await getApisList({page:pagination.value.current, limit: pagination.value.pageSize});
     tables.value = data.Items;
+    pagination.value.total = data.Total;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
@@ -108,6 +112,11 @@ const GetApisList = async () => {
 };
 
 GetApisList();
+const onPageChange = (page: number) => {
+  pagination.value.current = page;
+  GetApisList();
+};
+
 
 </script>
 
