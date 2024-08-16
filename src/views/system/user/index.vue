@@ -33,13 +33,21 @@
           </a-avatar>
         </template>
         <template #status="{record}">
-          <a-tag v-if="record.status == 1" color="#00b42a">正常</a-tag>
-          <a-tag v-if="record.status == 0" color="#f53f3f">禁用</a-tag>
+            <a-switch v-if="record.status == 1" :default-checked="true"/>
+            <a-switch v-if="record.status == 0" :default-checked="false"/>
         </template>
 
         <template #action>
-          <a-button type="text">编辑</a-button>
-          <a-button type="text">删除</a-button>
+          <a-button type="text">
+            <template #icon>
+              <icon-edit />
+            </template>
+            编辑</a-button>
+          <a-button type="text" status="danger">
+            <template #icon>
+              <icon-delete />
+            </template>
+            删除</a-button>
         </template>
       </a-table>
     </a-card>
@@ -79,6 +87,10 @@ const columns = [
   },
   {
     title: '手机',
+    dataIndex: 'phone',
+  },
+  {
+    title: '角色',
     dataIndex: 'phone',
   },
   {
