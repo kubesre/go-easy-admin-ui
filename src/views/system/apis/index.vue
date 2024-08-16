@@ -60,12 +60,12 @@ import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import {getUserList, UserListRes} from "@/api/system/user";
 import {getRoleList, RoleListRes} from "@/api/system/role";
-import {ApisListRes, getApisList} from "@/api/system/apis";
+import {Api, ApisListRes, getApisList} from "@/api/system/apis";
 
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
 const Title = ref('');
-const tables = ref<ApisListRes[]>([]);
+const tables = ref<Api[]>([]);
 
 const columns = [
   {

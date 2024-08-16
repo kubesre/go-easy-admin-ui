@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-
-export interface UserListRes {
+// 用户列表
+export interface User{
     userName: string;
     nickName: string;
     avatar: string;
@@ -9,6 +9,11 @@ export interface UserListRes {
     phone: string;
     status: string;
 }
+export interface UserListRes {
+    Items: User[];
+    Total: number;
+}
+
 export function getUserList(params: { page: number,limit: number }) {
-    return axios.get<UserListRes[]>('/sys/user/list', {params});
+    return axios.get<UserListRes>('/sys/user/list', {params});
 }
