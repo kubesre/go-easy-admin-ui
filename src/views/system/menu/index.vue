@@ -36,8 +36,8 @@
           <span v-if="record.icon === 'icon-stamp' "><icon-stamp/> {{record?.icon}}</span>
           <span v-if="record.icon === 'icon-desktop' "><icon-desktop/> {{record?.icon}}</span>
         </template>
-        <template #action>
-          <a-button type="text">
+        <template #action="{ record }">
+          <a-button type="text" @click="CreateChildrenMenu(record.id,record.name)">
             <template #icon>
               <icon-plus />
             </template>
@@ -98,9 +98,10 @@
           </a-form-item>
           <a-form-item label="父节点" :rules="[{ required: true, message: '请选择父节点' }]">
             <a-input v-if="title === '添加根菜单'" default-value="根菜单"  placeholder="请选择父节点" disabled></a-input>
+            <a-input v-if="title === '添加子菜单'" :default-value="parentName"  placeholder="请选择父节点" disabled></a-input>
           </a-form-item>
           <a-form-item label="菜单排序" :rules="[{ required: true, message: '请选择父节点' }]">
-            <a-input v-model="form.parent_id" placeholder="请选择父节点"></a-input>
+            <a-input v-model="form.sort" placeholder="请选择父节点"></a-input>
           </a-form-item>
           <a-form-item label="组件路径" :rules="[{ required: true, message: '请输入组件路径' }]">
             <a-input v-model="form.component" placeholder="请输入组件路径"></a-input>
@@ -125,6 +126,8 @@ const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
 const title = ref('');
 const tables = ref<Menu[]>([]);
+
+const parentName = ref('');
 
 const columns = [
   {
@@ -206,10 +209,19 @@ const formReset = () => {
     parent_id: 0,
     component: ''
   };
+  parentName.value = ''
 }
 const CreateRootMenu = () => {
   visible.value = true;
   title.value = '添加根菜单';
+};
+
+
+const CreateChildrenMenu = (id:number,name:string) => {
+  visible.value = true;
+  title.value = '添加子菜单';
+  form.value.parent_id = id;
+  parentName.value = name;
 };
 
 const CreateMenu = () => {
@@ -233,6 +245,9 @@ const CreateMenu = () => {
 const Confirm = () => {
   if (title.value === '添加根菜单') {
     form.value.parent_id = 0;
+    CreateMenu();
+  }
+  if (title.value === '添加子菜单') {
     CreateMenu();
   }
 };
