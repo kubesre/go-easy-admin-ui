@@ -37,3 +37,7 @@ export function getMenuList() {
 export function createMenu(data: any) {
     return axios.post<MenuRes>('/sys/menu/create', data);
 }
+
+export function editMenu(id:number,data: any) {
+   return axios.post<MenuRes>(`/sys/menu/${id}`, data);
+}

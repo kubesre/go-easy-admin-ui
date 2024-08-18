@@ -42,7 +42,7 @@
               <icon-plus />
             </template>
             添加子菜单</a-button>
-          <a-button type="text">
+          <a-button type="text" @click="EditMenu(record)">
             <template #icon>
               <icon-edit />
             </template>
@@ -64,7 +64,8 @@
         <template #title> {{ title }}</template>
         <a-form :model="form">
           <a-form-item label="菜单名称" :rules="[{ required: true, message: '请输入菜单名称' }]">
-            <a-input v-model="form.name" placeholder="请输入菜单名称"></a-input>
+            <a-input v-if="title != '编辑菜单'" v-model="form.name" placeholder="请输入菜单名称"></a-input>
+            <a-input v-if="title === '编辑菜单'" v-model="form.name" placeholder="请输入菜单名称" disabled></a-input>
           </a-form-item>
           <a-form-item label="菜单图标" :rules="[{ required: true, message: '请选择菜单图标' }]">
             <a-select v-model="form.icon" placeholder="请选择菜单图标">
@@ -99,6 +100,7 @@
           <a-form-item label="父节点" :rules="[{ required: true, message: '请选择父节点' }]">
             <a-input v-if="title === '添加根菜单'" default-value="根菜单"  placeholder="请选择父节点" disabled></a-input>
             <a-input v-if="title === '添加子菜单'" :default-value="parentName"  placeholder="请选择父节点" disabled></a-input>
+            <a-input v-if="title === '编辑菜单'" :default-value="parentName"  placeholder="请选择父节点" disabled></a-input>
           </a-form-item>
           <a-form-item label="菜单排序" :rules="[{ required: true, message: '请选择父节点' }]">
             <a-input v-model="form.sort" placeholder="请选择父节点"></a-input>
@@ -128,7 +130,6 @@ const title = ref('');
 const tables = ref<Menu[]>([]);
 
 const parentName = ref('');
-
 const columns = [
   {
     title: 'ID',
@@ -223,6 +224,17 @@ const CreateChildrenMenu = (id:number,name:string) => {
   form.value.parent_id = id;
   parentName.value = name;
 };
+
+const EditMenu = (row:any) => {
+  visible.value = true;
+  title.value = '编辑菜单';
+  form.value = row;
+  if (row.parent_id === 0) {
+    parentName.value = '根菜单';
+  }
+  console.log(row.parent_id)
+};
+
 
 const CreateMenu = () => {
   setLoading(true);
