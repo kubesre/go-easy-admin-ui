@@ -106,7 +106,6 @@ const GetUserList = async () => {
     tables.value = data.Items;
   } catch (err) {
     // you can report use errorHandler or other
-    //22
   } finally {
     setLoading(false);
   }
