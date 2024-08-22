@@ -42,7 +42,7 @@
               <icon-plus />
             </template>
             添加子菜单</a-button>
-          <a-button type="text" @click="EditMenu(record)">
+          <a-button type="text" @click="EditMenuOpen(record)">
             <template #icon>
               <icon-edit />
             </template>
@@ -121,11 +121,12 @@ import { Message } from '@arco-design/web-vue';
 import {getUserList, UserListRes} from "@/api/system/user";
 import {getRoleList, RoleListRes} from "@/api/system/role";
 import {Api, ApisListRes, getApisList} from "@/api/system/apis";
-import {createMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
+import {createMenu, editMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
 import {onClickOutside} from "@vueuse/core";
 
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
+const chooseId = ref(0);
 const title = ref('');
 const tables = ref<Menu[]>([]);
 
@@ -225,14 +226,14 @@ const CreateChildrenMenu = (id:number,name:string) => {
   parentName.value = name;
 };
 
-const EditMenu = (row:any) => {
+const EditMenuOpen = (row:any) => {
   visible.value = true;
   title.value = '编辑菜单';
   form.value = row;
   if (row.parent_id === 0) {
     parentName.value = '根菜单';
   }
-  console.log(row.parent_id)
+  chooseId.value = row.id;
 };
 
 
@@ -254,6 +255,25 @@ const CreateMenu = () => {
   }
 };
 
+const EditMenu = () => {
+  setLoading(true);
+  try {
+    editMenu(chooseId.value,form.value).then((response) => {
+      if (response.code === 20000) {
+        Message.success('编辑成功');
+        GetMenuList();
+        formReset();
+      }
+    });
+  } catch (err) {
+    formReset();
+  } finally {
+    formReset();
+    setLoading(false);
+  }
+};
+
+
 const Confirm = () => {
   if (title.value === '添加根菜单') {
     form.value.parent_id = 0;
@@ -261,6 +281,9 @@ const Confirm = () => {
   }
   if (title.value === '添加子菜单') {
     CreateMenu();
+  }
+  if (title.value === '编辑菜单') {
+    EditMenu();
   }
 };
 
