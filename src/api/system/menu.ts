@@ -38,6 +38,6 @@ export function createMenu(data: any) {
     return axios.post<MenuRes>('/sys/menu/create', data);
 }
 
-export function editMenu(id:number,data: any) {
-   return axios.post<MenuRes>(`/sys/menu/${id}`, data);
+export function editMenu(id:number,data: MenuReq) {
+   return axios.post<MenuRes>(`/sys/menu/update/${id}`, data);
 }
