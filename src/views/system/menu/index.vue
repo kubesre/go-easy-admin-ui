@@ -25,8 +25,8 @@
       </a-row>
       <a-table :loading="loading" :columns="columns" :data="tables">
         <template #is_show="{ record }">
-          <div v-if="record.is_show === 1">显示</div>
-          <div v-if="record.is_show === 0">隐藏</div>
+          <div v-if="record.is_show === 2">显示</div>
+          <div v-if="record.is_show === 1">隐藏</div>
         </template>
         <template #icon="{ record }">
           <span v-if="record.icon === 'icon-settings' "><icon-settings /> {{record?.icon}}</span>
@@ -47,7 +47,7 @@
               <icon-edit />
             </template>
             编辑</a-button>
-          <a-button type="text" status="danger">
+          <a-button type="text" status="danger" @click="DeleteMenu(record.id)">
             <template #icon>
               <icon-delete />
             </template>
@@ -93,8 +93,8 @@
           </a-form-item>
           <a-form-item label="是否隐藏" :rules="[{ required: true, message: '是否隐藏' }]">
             <a-select v-model="form.is_show"  placeholder="请选择是否隐藏">
-              <a-option :value=1 label="显示">显示</a-option>
-              <a-option :value=0 label="隐藏">隐藏</a-option>
+              <a-option :value=2 label="显示">显示</a-option>
+              <a-option :value=1 label="隐藏">隐藏</a-option>
             </a-select>
           </a-form-item>
           <a-form-item label="父节点" :rules="[{ required: true, message: '请选择父节点' }]">
@@ -121,7 +121,7 @@ import { Message } from '@arco-design/web-vue';
 import {getUserList, UserListRes} from "@/api/system/user";
 import {getRoleList, RoleListRes} from "@/api/system/role";
 import {Api, ApisListRes, getApisList} from "@/api/system/apis";
-import {createMenu, editMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
+import {createMenu, deleteMenu, editMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
 import {onClickOutside} from "@vueuse/core";
 
 const { setLoading, loading } = useLoading(true);
@@ -190,7 +190,7 @@ const GetMenuList = async () => {
 const form = ref<MenuReq>({
   name: '',
   name_code: '',
-  is_show: 0,
+  is_show: 1,
   icon: '',
   path: '',
   sort: 0,
@@ -229,7 +229,13 @@ const CreateChildrenMenu = (id:number,name:string) => {
 const EditMenuOpen = (row:any) => {
   visible.value = true;
   title.value = '编辑菜单';
-  form.value = row;
+  form.value.name = row.name;
+  form.value.name_code = row.name_code;
+  form.value.is_show = row.is_show;
+  form.value.icon = row.icon;
+  form.value.path = row.path;
+  form.value.sort = row.sort;
+  form.value.component = row.component;
   if (row.parent_id === 0) {
     parentName.value = '根菜单';
   }
@@ -241,7 +247,7 @@ const CreateMenu = () => {
   setLoading(true);
   try {
     createMenu(form.value).then((response) => {
-      if (response.code === 20000) {
+      if (response.data.code === 20000) {
         Message.success('添加成功');
         GetMenuList();
         formReset();
@@ -259,7 +265,7 @@ const EditMenu = () => {
   setLoading(true);
   try {
     editMenu(chooseId.value,form.value).then((response) => {
-      if (response.code === 20000) {
+      if (response.data.code === 20000) {
         Message.success('编辑成功');
         GetMenuList();
         formReset();
@@ -273,6 +279,23 @@ const EditMenu = () => {
   }
 };
 
+const DeleteMenu = (id:number) => {
+  setLoading(true);
+  try {
+    deleteMenu(id).then((response) => {
+      if (response.data.code === 20000) {
+        Message.success('删除成功');
+        GetMenuList();
+        formReset();
+      }
+    });
+  } catch (err) {
+    formReset();
+  } finally {
+    formReset();
+    setLoading(false);
+  }
+};
 
 const Confirm = () => {
   if (title.value === '添加根菜单') {

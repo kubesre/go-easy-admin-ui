@@ -64,12 +64,12 @@ import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
 import {getUserList, UserListRes} from "@/api/system/user";
-import {getRoleList, RoleListRes} from "@/api/system/role";
+import {getRoleList, Role, RoleListRes} from "@/api/system/role";
 
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
 const Title = ref('');
-const tables = ref<RoleListRes[]>([]);
+const tables = ref<Role[]>([]);
 const page = ref(1);
 const pageSize = ref(10);
 

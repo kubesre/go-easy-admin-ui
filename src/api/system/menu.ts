@@ -30,7 +30,7 @@ export interface MenuRes{
 }
 
 export function getMenuList() {
-    return axios.get<Menu[]>('/sys/menu/list', );
+    return axios.get<Menu[]>('/sys/menu/list');
 }
 
 
@@ -40,4 +40,8 @@ export function createMenu(data: any) {
 
 export function editMenu(id:number,data: MenuReq) {
    return axios.post<MenuRes>(`/sys/menu/update/${id}`, data);
+}
+
+export function deleteMenu(id:number) {
+    return axios.post<MenuRes>(`/sys/menu/delete/${id}`);
 }
