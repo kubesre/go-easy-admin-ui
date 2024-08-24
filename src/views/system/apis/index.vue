@@ -5,7 +5,7 @@
       <a-divider style="margin-top: 0" />
       <a-row>
         <a-col :flex="1" style="margin-bottom: 16px">
-          <a-button type="primary" @click="Create">
+          <a-button type="primary" @click="CreateApiOpen">
             <template #icon>
               <icon-plus />
             </template>
@@ -14,7 +14,7 @@
           <a-button
               type="outline"
               style="margin-left: 15px"
-              @click="GetHostsList"
+              @click="GetApisList"
           >
             <template #icon>
               <icon-refresh />
@@ -37,19 +37,48 @@
           <a-switch v-if="record.status == 0" :default-checked="false"/>
         </template>
 
-        <template #action>
-          <a-button type="text">
+        <template #action="{ record }">
+          <a-button type="text" @click="EditApiOpen(record)">
             <template #icon>
               <icon-edit />
             </template>
             编辑</a-button>
-          <a-button type="text" status="danger">
+          <a-button type="text" status="danger" @click="DeleteApi(record.id)">
             <template #icon>
               <icon-delete />
             </template>
             删除</a-button>
         </template>
       </a-table>
+      <a-modal
+          v-model:visible="visible"
+          draggable="true"
+          width="40%"
+          @ok="Confirm"
+          @cancel="formReset"
+         >
+        <template #title> {{ title }}</template>
+        <a-form :model="form">
+          <a-form-item label="接口路径" prop="path" :rules="[{ required: true, message: '请输入接口路径' }]">
+            <a-input v-model="form.path" placeholder="请输入接口路径" />
+          </a-form-item>
+          <a-form-item  label="接口分组" prop="apiGroup" :rules="[{ required: true, message: '请输入接口分组' }]">
+            <a-select v-model="form.apiGroup" placeholder="请输入接口分组" allow-create>
+            </a-select>
+          </a-form-item>
+          <a-form-item label="请求方式" prop="method" :rules="[{ required: true, message: '请输入请求方式' }]">
+            <a-select v-model="form.method" placeholder="请输入请求方式">
+              <a-option>GET</a-option>
+              <a-option>POST</a-option>
+              <a-option>PUT</a-option>
+              <a-option>DELETE</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item label="接口描述" prop="desc" :rules="[{ required: true, message: '请输入接口描述' }]">
+            <a-input v-model="form.desc" placeholder="请输入接口描述" />
+          </a-form-item>
+        </a-form>
+      </a-modal>
     </a-card>
   </div>
 </template>
@@ -58,13 +87,12 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import {getUserList, UserListRes} from "@/api/system/user";
-import {getRoleList, RoleListRes} from "@/api/system/role";
-import {Api, ApisListRes, getApisList} from "@/api/system/apis";
+import {Api, ApiReq, createApi, deleteApi, editApi, getApisList} from "@/api/system/apis";
 
+const chooseId = ref(0);
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
-const Title = ref('');
+const title = ref('');
 const tables = ref<Api[]>([]);
 
 const columns = [
@@ -93,17 +121,80 @@ const columns = [
     slotName: 'action',
   },
 ];
+
+// 分页
 const pagination = ref({
   total: 0,
   pageSize: 10,
   current: 1,
 });
+
+// 表单
+const form = ref<ApiReq>({
+  path: '',
+  apiGroup: '',
+  method: '',
+  desc: '',
+});
+
+
+const formReset = () => {
+  form.value = {
+    path: '',
+    apiGroup: '',
+    method: '',
+    desc: '',
+  };
+}
+
 const GetApisList = async () => {
   setLoading(true);
   try {
     const { data } = await getApisList({page:pagination.value.current, limit: pagination.value.pageSize});
     tables.value = data.Items;
     pagination.value.total = data.Total;
+  //  Message.success('获取成功');
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+const CreateApi = async () => {
+  setLoading(true);
+  try {
+     await createApi(form.value);
+      Message.success('创建成功');
+      formReset();
+      await GetApisList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+const EditApi = async () => {
+  setLoading(true);
+  try {
+    await editApi(chooseId.value,form.value);
+    Message.success('编辑成功');
+    formReset();
+    await GetApisList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+const DeleteApi = async (id:number) => {
+  setLoading(true);
+  try {
+    await deleteApi(id);
+    Message.success('删除成功');
+    await GetApisList();
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
@@ -117,6 +208,31 @@ const onPageChange = (page: number) => {
   GetApisList();
 };
 
+
+const CreateApiOpen = () => {
+  visible.value = true;
+  title.value = '创建接口';
+};
+
+const EditApiOpen = (row:any) => {
+  visible.value = true;
+  title.value = '编辑接口';
+  form.value.apiGroup = row.apiGroup;
+  form.value.desc = row.desc;
+  form.value.method = row.method;
+  form.value.path = row.path;
+  chooseId.value = row.id;
+};
+
+
+const Confirm = () => {
+  if (title.value === '创建接口') {
+    CreateApi();
+  }
+  if (title.value === '编辑接口') {
+    EditApi();
+  }
+};
 
 </script>
 

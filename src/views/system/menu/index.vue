@@ -118,11 +118,7 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import {getUserList, UserListRes} from "@/api/system/user";
-import {getRoleList, RoleListRes} from "@/api/system/role";
-import {Api, ApisListRes, getApisList} from "@/api/system/apis";
 import {createMenu, deleteMenu, editMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
-import {onClickOutside} from "@vueuse/core";
 
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
