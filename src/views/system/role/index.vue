@@ -38,7 +38,7 @@
         </template>
 
         <template #action>
-          <a-button type="text">
+          <a-button type="text" @click="RoleSettings">
             <template #icon>
               <icon-settings />
             </template>
@@ -55,6 +55,32 @@
             删除</a-button>
         </template>
       </a-table>
+
+
+      <a-drawer  width="30%" :visible="roleVisible">
+        <template #title>角色权限设置</template>
+<!--          <a-radio-group type='button' size="large" style="width: 100%" fill="true">-->
+<!--            <a-radio value="mini">菜单权限</a-radio>-->
+<!--            <a-radio value="small">接口权限</a-radio>-->
+<!--          </a-radio-group>-->
+<!--        <a-tree-->
+<!--          :default-selected-keys="['1']"-->
+<!--          :field-names="{title: 'name', key: 'path', children: 'children'}"-->
+<!--          :data="menuList"-->
+<!--        />-->
+        <template>
+          <a-tree
+              :default-selected-keys="['0-0-1']"
+              :fieldNames="{
+      key: 'path',
+      title: 'name',
+      children: 'children',
+      icon: 'icon',
+    }"
+              :data="menuList"
+          />
+        </template>
+      </a-drawer>
     </a-card>
   </div>
 </template>
@@ -63,10 +89,12 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import {getRoleList, Role, RoleListRes} from "@/api/system/role";
+import {getMenuList, Menu} from "@/api/system/menu";
 
 const { setLoading, loading } = useLoading(true);
 const tables = ref<Role[]>([]);
-
+const menuList = ref<Menu[]>([]);
+const roleVisible = ref(false);
 const columns = [
   {
     title: '角色名称',
@@ -96,6 +124,25 @@ const GetRoleList = async () => {
   } finally {
     setLoading(false);
   }
+};
+
+
+
+const GetMenuList = async () => {
+  setLoading(true);
+  try {
+    const { data } = await getMenuList();
+    menuList.value = data
+
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+GetMenuList();
+const RoleSettings = () => {
+  roleVisible.value = true;
 };
 
 GetRoleList();

@@ -12,6 +12,7 @@ export interface Menu {
     sort: number;
     parent_id: number;
     component: string;
+    children: Menu[];
 }
 
 export interface MenuReq {
