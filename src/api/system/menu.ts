@@ -29,6 +29,8 @@ export interface MenuRes{
     msg: string;
 }
 
+
+
 export function getMenuList() {
     return axios.get<Menu[]>('/sys/menu/list');
 }
