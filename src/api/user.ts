@@ -19,8 +19,8 @@ export function logout() {
   return axios.post<LoginRes>('/api/system/user/logout');
 }
 
-export function getUserInfo(userId: number) {
-  return axios.get<UserState>('/sys/login/info/1');
+export function getUserInfo() {
+  return axios.get<UserState>('/sys/login/info');
 }
 
 export function getMenuList() {

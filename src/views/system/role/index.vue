@@ -14,7 +14,7 @@
           <a-button
               type="outline"
               style="margin-left: 15px"
-              @click="GetHostsList"
+              @click="GetRoleList"
           >
             <template #icon>
               <icon-refresh />
@@ -62,16 +62,10 @@
 <script lang="ts" setup>
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
-import { Message } from '@arco-design/web-vue';
-import {getUserList, UserListRes} from "@/api/system/user";
 import {getRoleList, Role, RoleListRes} from "@/api/system/role";
 
 const { setLoading, loading } = useLoading(true);
-const visible = ref(false);
-const Title = ref('');
 const tables = ref<Role[]>([]);
-const page = ref(1);
-const pageSize = ref(10);
 
 const columns = [
   {
@@ -95,8 +89,8 @@ const columns = [
 const GetRoleList = async () => {
   setLoading(true);
   try {
-    const { data } = await getRoleList({page:1, limit: 10});
-    tables.value = data.Items;
+    const { data } = await getRoleList();
+    tables.value = data;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
