@@ -57,7 +57,7 @@
       </a-table>
 
 
-      <a-drawer  width="30%" :visible="roleVisible">
+      <a-drawer  width="30%" :visible="roleVisible" unmount-on-close>
         <template #title>角色权限设置</template>
 <!--          <a-radio-group type='button' size="large" style="width: 100%" fill="true">-->
 <!--            <a-radio value="mini">菜单权限</a-radio>-->
@@ -68,18 +68,17 @@
 <!--          :field-names="{title: 'name', key: 'path', children: 'children'}"-->
 <!--          :data="menuList"-->
 <!--        />-->
-        <template>
           <a-tree
+              :data="menuList as TreeNodeData[]"
               :default-selected-keys="['0-0-1']"
-              :fieldNames="{
-      key: 'path',
-      title: 'name',
-      children: 'children',
-      icon: 'icon',
-    }"
-              :data="menuList"
+              :field-names="{
+                  key: 'path',
+                  title: 'name',
+                  children: 'children',
+                  icon: 'icon',
+                }"
           />
-        </template>
+        {{menuList}}
       </a-drawer>
     </a-card>
   </div>
@@ -90,6 +89,7 @@ import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import {getRoleList, Role, RoleListRes} from "@/api/system/role";
 import {getMenuList, Menu} from "@/api/system/menu";
+import {TreeNodeData} from "@arco-design/web-vue";
 
 const { setLoading, loading } = useLoading(true);
 const tables = ref<Role[]>([]);
