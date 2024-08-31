@@ -1,44 +1,20 @@
 <template>
-  <a-tree
-      :default-selected-keys="['0-0-1']"
-      :field-names="{
-      key: 'path',
-      title: 'name',
-    }"
-      :data="treeData"
-  />
+  <div>
+    <!-- 使用 a-switch 组件并将其绑定到 number 类型的 model-value -->
+    <a-switch v-model="form.status" :checked-value="1" :unchecked-value="2"></a-switch>
+    <p>当前状态: {{ form.status }}</p>
+  </div>
 </template>
-<script>
-import { h } from 'vue';
-import { IconStar, IconDriveFile } from '@arco-design/web-vue/es/icon';
 
+<script>
 export default {
   data() {
     return {
-      // eslint-disable-next-line no-use-before-define
-      treeData,
+      // 初始化 form 对象，其中 status 是一个 number 类型
+      form: {
+        status: 1, // 默认值可以为 1 或 2
+      },
     };
   },
 };
-const treeData = [
-  {
-    id: 22,
-    name: '1',
-    children: [
-      {
-        id: 23,
-        name: '2',
-        children: [
-          {
-            id: 24,
-            name: '3',
-            children: []
-          }
-        ]
-      }
-    ]
-  }
-];
-
-
 </script>

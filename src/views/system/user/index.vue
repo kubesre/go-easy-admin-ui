@@ -33,17 +33,21 @@
           </a-avatar>
         </template>
         <template #status="{record}">
-            <a-switch v-if="record.status == 1" :default-checked="true"/>
-            <a-switch v-if="record.status == 0" :default-checked="false"/>
+          <a-switch v-model="record.status" :checked-value="1" :unchecked-value="2"></a-switch>
         </template>
+        <template #roles="{record}">
+          <a-space>
+            <a-tag v-for="item in record.roles" :key="item">{{ item.name }}</a-tag>
+          </a-space>
 
-        <template #action>
-          <a-button type="text">
+        </template>
+        <template #action="{ record }">
+          <a-button type="text" @click="EditApiOpen(record)">
             <template #icon>
               <icon-edit />
             </template>
             编辑</a-button>
-          <a-button type="text" status="danger">
+          <a-button type="text" status="danger" @click="DeleteUser(record.id)">
             <template #icon>
               <icon-delete />
             </template>
@@ -65,19 +69,21 @@
           <a-form-item label="用户昵称" prop="nickName" :rules="[{ required: true, message: '请输入用户昵称' }]">
             <a-input v-model="form.nickName" placeholder="请输入用户昵称" />
           </a-form-item>
-          <a-form-item label="邮箱地址" prop="email" :rules="[{ required: true, message: '请输入邮箱地址' }]">
+          <a-form-item field="email"  label="邮箱地址" prop="email" :rules="[{ required: true, message: '请输入邮箱地址',type:'email' }]">
             <a-input v-model="form.email" placeholder="请输入邮箱地址" />
           </a-form-item>
-          <a-form-item label="电话号码" prop="phone" :rules="[{ required: true, message: '请输入电话号码' }]">
-            <a-input v-model="form.phone" placeholder="请输入电话号码" />
+          <a-form-item label="电话号码" prop="phone" :rules="[{ required: true, message: '请输入电话号码'}]">
+            <a-input v-model="form.phone" :default-value="form.phone" placeholder="请输入电话号码" />
           </a-form-item>
-          <a-form-item label="用户状态" prop="phone" :rules="[{ required: true, message: '请输入用户状态' }]">
-            <a-switch :default-checked="true"/>
+          <a-form-item label="用户状态" prop="status" :rules="[{ required: true, message: '请输入用户状态' }]">
+            <a-switch v-model="form.status" :checked-value="1" :unchecked-value="2"></a-switch>
           </a-form-item>
-          <a-form-item label="用户角色" prop="phone" :rules="[{ required: true, message: '请输入用户角色' }]">
-            <a-input v-model="form.phone" placeholder="请输入用户角色" />
+          <a-form-item label="用户角色" prop="role" :rules="[{ required: true, message: '请输入用户角色' }]">
+            <a-select v-model="form.roles" placeholder="请选择用户角色" multiple>
+                <a-option v-for="item in roleList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+            </a-select>
           </a-form-item>
-          <a-form-item label="用户头像" prop="phone" :rules="[{ required: true, message: '请输入用户角色' }]">
+          <a-form-item label="用户头像" prop="avatar" :rules="[{ required: true, message: '请输入用户角色' }]">
             <a-upload
                 action="/"
                 :file-list="file ? [file] : []"
@@ -131,9 +137,10 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import {createUser, getUserList, User, UserListRes, UserReq} from "@/api/system/user";
+import {createUser, deleteUser, editUser, getUserList, User, UserListRes, UserReq} from "@/api/system/user";
 import {IconEdit, IconPlus} from "@arco-design/web-vue/es/icon";
-import {createApi} from "@/api/system/apis";
+import {createApi, deleteApi, editApi} from "@/api/system/apis";
+import {getRoleList, Role} from "@/api/system/role";
 
 const { setLoading, loading } = useLoading(true);
 const avatarSrc = ref<string | null>(null);
@@ -141,6 +148,8 @@ const visible = ref(false);
 const title = ref('');
 const tables = ref<User[]>([]);
 const file = ref();
+const chooseId = ref(0);
+const roleList = ref<Role[]>([]);
 
 const columns = [
   {
@@ -166,7 +175,8 @@ const columns = [
   },
   {
     title: '角色',
-    dataIndex: 'phone',
+    dataIndex: 'roles',
+    slotName: 'roles',
   },
   {
     title: '状态',
@@ -178,6 +188,10 @@ const columns = [
     slotName: 'action',
   },
 ];
+const changeSwitch  = (value:number) => {
+  // eslint-disable-next-line no-use-before-define
+  form.value.status = value
+};
 
 // 表单
 const form = ref<UserReq>({
@@ -215,13 +229,40 @@ const GetUserList = async () => {
     setLoading(false);
   }
 };
+const GetRoleList = async () => {
+  setLoading(true);
+  try {
+    const { data } = await getRoleList();
+    roleList.value = data;
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
 
 GetUserList();
-
+GetRoleList();
 const CreateApiOpen = () => {
   visible.value = true;
   title.value = '创建用户';
 };
+
+
+const EditApiOpen = (row:any) => {
+  visible.value = true;
+  title.value = '编辑用户';
+  form.value.userName = row.userName;
+  form.value.nickName = row.nickName;
+  form.value.email = row.email;
+  form.value.phone = row.phone;
+  form.value.status = row.status;
+  form.value.roles = row.roles.map((role: any) => role.id);
+  file.value = {url:row.avatar};
+  chooseId.value = row.id;
+};
+
+
 
 const CreateUser = async () => {
   setLoading(true);
@@ -237,11 +278,40 @@ const CreateUser = async () => {
   }
 };
 
+const DeleteUser = async (id:number) => {
+  setLoading(true);
+  try {
+    await deleteUser(id);
+    Message.success('删除成功');
+    await GetUserList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
 
+const EditUser = async () => {
+  setLoading(true);
+  try {
+    await editUser(chooseId.value,form.value);
+    Message.success('编辑成功');
+    formReset();
+    await GetUserList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
 const Confirm = () => {
   if (title.value === '创建用户') {
     form.value.avatar = file.value?.url;
     CreateUser();
+  }
+  if (title.value === '编辑用户') {
+    form.value.avatar = file.value?.url;
+    EditUser();
   }
 };
 

@@ -239,16 +239,13 @@ const EditMenuOpen = (row:any) => {
 };
 
 
-const CreateMenu = () => {
+const CreateMenu = async () => {
   setLoading(true);
   try {
-    createMenu(form.value).then((response) => {
-      if (response.data.code === 20000) {
-        Message.success('添加成功');
-        GetMenuList();
-        formReset();
-      }
-    });
+    await createMenu(form.value);
+    Message.success('添加成功');
+    await GetMenuList();
+    formReset()
   } catch (err) {
     formReset();
   } finally {
@@ -257,16 +254,13 @@ const CreateMenu = () => {
   }
 };
 
-const EditMenu = () => {
+const EditMenu = async () => {
   setLoading(true);
   try {
-    editMenu(chooseId.value,form.value).then((response) => {
-      if (response.data.code === 20000) {
-        Message.success('编辑成功');
-        GetMenuList();
-        formReset();
-      }
-    });
+    await editMenu(chooseId.value,form.value);
+    Message.success('编辑成功');
+    await GetMenuList();
+    formReset();
   } catch (err) {
     formReset();
   } finally {
@@ -275,16 +269,14 @@ const EditMenu = () => {
   }
 };
 
-const DeleteMenu = (id:number) => {
+const DeleteMenu = async (id:number) => {
   setLoading(true);
   try {
-    deleteMenu(id).then((response) => {
-      if (response.data.code === 20000) {
-        Message.success('删除成功');
-        GetMenuList();
-        formReset();
-      }
-    });
+    await deleteMenu(id);
+    Message.success('删除成功');
+    await GetMenuList();
+    formReset();
+
   } catch (err) {
     formReset();
   } finally {
