@@ -64,6 +64,7 @@
           </a-form-item>
           <a-form-item  label="接口分组" prop="apiGroup" :rules="[{ required: true, message: '请输入接口分组' }]">
             <a-select v-model="form.apiGroup" placeholder="请输入接口分组" allow-create>
+              <a-option v-for="item in groups" :key="item">{{ item }}</a-option>
             </a-select>
           </a-form-item>
           <a-form-item label="请求方式" prop="method" :rules="[{ required: true, message: '请输入请求方式' }]">
@@ -87,13 +88,14 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import { Message } from '@arco-design/web-vue';
-import {Api, ApiReq, createApi, deleteApi, editApi, getApisList} from "@/api/system/apis";
+import {Api, ApiReq, createApi, deleteApi, editApi, getApiGroups, getApisList} from "@/api/system/apis";
 
 const chooseId = ref(0);
 const { setLoading, loading } = useLoading(true);
 const visible = ref(false);
 const title = ref('');
 const tables = ref<Api[]>([]);
+const groups = ref<any[]>([]);
 
 const columns = [
   {
@@ -143,8 +145,8 @@ const formReset = () => {
 const GetApisList = async () => {
   setLoading(true);
   try {
-    const { data } = await getApisList();
-    tables.value = data;
+    const data= await getApisList();
+    tables.value = data.data as any;
   //  Message.success('获取成功');
   } catch (err) {
     // you can report use errorHandler or other
@@ -153,6 +155,20 @@ const GetApisList = async () => {
   }
 };
 
+const GetApiGroups = async () => {
+  setLoading(true);
+  try {
+    const data = await getApiGroups();
+    groups.value = data.data as any;
+    //  Message.success('获取成功');
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+GetApiGroups();
 const CreateApi = async () => {
   setLoading(true);
   try {
