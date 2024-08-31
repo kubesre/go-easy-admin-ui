@@ -38,11 +38,16 @@
         </template>
 
         <template #action>
-          <a-button type="text" @click="RoleSettings">
+          <a-button type="text" @click="MenuRoleSettings">
             <template #icon>
               <icon-settings />
             </template>
-            设置权限</a-button>
+            设置菜单权限</a-button>
+          <a-button type="text" @click="ApiRoleSettings">
+            <template #icon>
+              <icon-settings />
+            </template>
+            设置接口权限</a-button>
           <a-button type="text">
             <template #icon>
               <icon-edit />
@@ -55,30 +60,15 @@
             删除</a-button>
         </template>
       </a-table>
-
-
-      <a-drawer  width="30%" :visible="roleVisible" unmount-on-close>
-        <template #title>角色权限设置</template>
-<!--          <a-radio-group type='button' size="large" style="width: 100%" fill="true">-->
-<!--            <a-radio value="mini">菜单权限</a-radio>-->
-<!--            <a-radio value="small">接口权限</a-radio>-->
-<!--          </a-radio-group>-->
-<!--        <a-tree-->
-<!--          :default-selected-keys="['1']"-->
-<!--          :field-names="{title: 'name', key: 'path', children: 'children'}"-->
-<!--          :data="menuList"-->
-<!--        />-->
-          <a-tree
-              :data="menuList as TreeNodeData[]"
-              :default-selected-keys="['0-0-1']"
-              :field-names="{
-                  key: 'path',
-                  title: 'name',
-                  children: 'children',
-                  icon: 'icon',
-                }"
-          />
-        {{menuList}}
+      <a-drawer  width="20%" :visible="settingsRoleVisible"  unmount-on-close @ok="handleOk" @cancel="handleCancel">
+        <template #title>{{title}}</template>
+        <a-tree
+            :data="dataTree"
+            :default-selected-keys="[1, 2]"
+            :block-node="true"
+            :checkable="true"
+            size="large"
+        />
       </a-drawer>
     </a-card>
   </div>
@@ -88,13 +78,15 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import {getRoleList, Role, RoleListRes} from "@/api/system/role";
-import {getMenuList, Menu} from "@/api/system/menu";
-import {TreeNodeData} from "@arco-design/web-vue";
+import {getMenuList, Menu, MenuReq} from "@/api/system/menu";
+import {getApisList} from "@/api/system/apis";
 
 const { setLoading, loading } = useLoading(true);
 const tables = ref<Role[]>([]);
-const menuList = ref<Menu[]>([]);
-const roleVisible = ref(false);
+const dataTree = ref<any[]>([]);
+const settingsRoleVisible = ref(false);
+const title = ref('');
+
 const columns = [
   {
     title: '角色名称',
@@ -114,6 +106,40 @@ const columns = [
     slotName: 'action',
   },
 ];
+
+interface ApiData {
+  id: number;
+  path: string;
+  method: string;
+  desc: string;
+  apiGroup: string;
+  [key: string]: any; // 允许其他未列出的字段
+}
+interface TreeNode {
+  title: string;
+  key: string;
+  children?: TreeNode[];
+}
+
+const groupByApiGroup = (data: any[]): TreeNode[] => {
+  const grouped = data.reduce((acc, item) => {
+    if (!acc[item.apiGroup]) {
+      acc[item.apiGroup] = [];
+    }
+    acc[item.apiGroup].push({
+      title: `${item.desc}`, // 这里将 method 和 path 组合作为 title
+      key: String(item.id),
+    });
+    return acc;
+  }, {} as Record<string, TreeNode[]>);
+
+  return Object.keys(grouped).map(group => ({
+    title: group,
+    key: group,
+    children: grouped[group],
+  }));
+};
+
 const GetRoleList = async () => {
   setLoading(true);
   try {
@@ -126,23 +152,68 @@ const GetRoleList = async () => {
   }
 };
 
+const transformMenuTree = (data: any[]): any[] => {
+  return data.map(item => ({
+    title: item.name,
+    key: String(item.id),
+    children: item.children ? transformMenuTree(item.children) : [],
+    // 如果需要添加 icon，可以根据 item 的某个属性来动态生成
+    // icon: item.icon ? () => h(IconComponent) : undefined,
+  }));
+};
 
-
-const GetMenuList = async () => {
+const GetMenuTree = async () => {
   setLoading(true);
   try {
     const { data } = await getMenuList();
-    menuList.value = data
-
+    dataTree.value = transformMenuTree(data);
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
     setLoading(false);
   }
 };
-GetMenuList();
-const RoleSettings = () => {
-  roleVisible.value = true;
+
+const GetApiTree = async () => {
+  setLoading(true);
+  try {
+    const { data } = await getApisList();
+    dataTree.value = groupByApiGroup(data);
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleOk = () => {
+  if (title.value === '设置菜单权限'){
+    settingsRoleVisible.value = false;
+  }
+  if (title.value === '设置接口权限'){
+    settingsRoleVisible.value = false;
+  }
+};
+const handleCancel = () => {
+  if (title.value === '设置菜单权限'){
+    settingsRoleVisible.value = false;
+    dataTree.value = [];
+  }
+  if (title.value === '设置接口权限'){
+    settingsRoleVisible.value = false;
+    dataTree.value = [];
+  }
+}
+const MenuRoleSettings = () => {
+  GetMenuTree();
+  settingsRoleVisible.value = true;
+  title.value = '设置菜单权限';
+};
+
+const ApiRoleSettings = () => {
+  GetApiTree();
+  settingsRoleVisible.value = true;
+  title.value = '设置接口权限';
 };
 
 GetRoleList();

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 
 
 
@@ -31,11 +31,9 @@ export interface MenuRes{
 }
 
 
-
 export function getMenuList() {
     return axios.get<Menu[]>('/sys/menu/list');
 }
-
 
 export function createMenu(data: any) {
     return axios.post<MenuRes>('/sys/menu/create', data);

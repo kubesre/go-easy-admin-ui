@@ -23,7 +23,7 @@
           >
         </a-col>
       </a-row>
-      <a-table :loading="loading" :columns="columns" :data="tables" :pagination="pagination" @page-change="onPageChange">
+      <a-table :loading="loading" :columns="columns" :data="tables">
         <template #avatar="{ record }">
           <a-avatar :src="record.avatar">
             <img
@@ -122,13 +122,6 @@ const columns = [
   },
 ];
 
-// 分页
-const pagination = ref({
-  total: 0,
-  pageSize: 10,
-  current: 1,
-});
-
 // 表单
 const form = ref<ApiReq>({
   path: '',
@@ -150,9 +143,8 @@ const formReset = () => {
 const GetApisList = async () => {
   setLoading(true);
   try {
-    const { data } = await getApisList({page:pagination.value.current, limit: pagination.value.pageSize});
-    tables.value = data.Items;
-    pagination.value.total = data.Total;
+    const { data } = await getApisList();
+    tables.value = data;
   //  Message.success('获取成功');
   } catch (err) {
     // you can report use errorHandler or other
@@ -203,11 +195,6 @@ const DeleteApi = async (id:number) => {
 };
 
 GetApisList();
-const onPageChange = (page: number) => {
-  pagination.value.current = page;
-  GetApisList();
-};
-
 
 const CreateApiOpen = () => {
   visible.value = true;
