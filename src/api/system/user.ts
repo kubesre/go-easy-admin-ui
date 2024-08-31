@@ -38,3 +38,14 @@ export function getUserList(params: { page: number,limit: number }) {
 export function createUser(data: UserReq) {
     return axios.post<UserRes>('/sys/user/create', data);
 }
+
+
+export function editUser(id:number,data: UserReq) {
+    return axios.post<UserRes>(`/sys/user/update/${id}`, data);
+}
+
+
+
+export function deleteUser(id:number) {
+    return axios.post<UserRes>(`/sys/user/delete/${id}`);
+}
