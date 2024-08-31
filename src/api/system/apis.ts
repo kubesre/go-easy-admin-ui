@@ -11,11 +11,6 @@ export interface Api {
     apiGroup: string;
 }
 
-export interface ApisListRes {
-    Items: Api[];
-    Total: number;
-}
-
 export interface ApiReq {
     path: string;
     method: string;
@@ -26,10 +21,11 @@ export interface ApiReq {
 export interface ApiRes{
     code: number;
     msg: string;
+    data: Api[];
 }
 
-export function getApisList(params: { page: number,limit: number }) {
-    return axios.get<ApisListRes>('/sys/apis/list', {params});
+export function getApisList() {
+    return axios.get<ApiRes>('/sys/apis/list' );
 }
 export function createApi(data: ApiReq) {
     return axios.post<ApiRes>('/sys/apis/create', data);
