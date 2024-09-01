@@ -24,6 +24,12 @@ export interface ApiRes{
     data: Api[];
 }
 
+export interface ApiGroup {
+    code: number;
+    msg: string;
+    data?: any;
+}
+
 export function getApisList() {
     return axios.get<ApiRes>('/sys/apis/list' );
 }
@@ -39,4 +45,9 @@ export function editApi(id:number,data: ApiReq) {
 
 export function deleteApi(id:number) {
     return axios.post<ApiRes>(`/sys/apis/delete/${id}`);
+}
+
+
+export function getApiGroups() {
+    return axios.get<ApiGroup>('/sys/apis/get/group' );
 }

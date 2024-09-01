@@ -36,3 +36,10 @@ export function editRole(id:number,data: RoleReq) {
 export function deleteRole(id:number) {
     return axios.post<Role[]>(`/sys/role/delete/${id}`);
 }
+
+
+export function getRoleDetails(id:number) {
+    return axios.get<any[]>(`/sys/role/get/${id}`);
+}
+
+

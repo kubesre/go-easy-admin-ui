@@ -63,10 +63,10 @@
         <template #title>{{title}}</template>
         <a-tree
             :data="dataTree"
-            :default-selected-keys="[1, 2]"
             :block-node="true"
             :checkable="true"
             size="large"
+            :selected-keys="chooseMenus"
         />
       </a-drawer>
 
@@ -94,7 +94,16 @@
 <script lang="ts" setup>
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
-import {createRole, deleteRole, editRole, getRoleList, Role, RoleListRes, RoleReq} from "@/api/system/role";
+import {
+  createRole,
+  deleteRole,
+  editRole,
+  getRoleDetails,
+  getRoleList,
+  Role,
+  RoleListRes,
+  RoleReq
+} from "@/api/system/role";
 import {createMenu, deleteMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
 import {getApisList} from "@/api/system/apis";
 import {Message} from "@arco-design/web-vue";
@@ -106,6 +115,7 @@ const settingsRoleVisible = ref(false);
 const RoleVisible = ref(false);
 const title = ref('');
 const chooseId = ref(0);
+const chooseMenus = ref<number[]>([26, 27]);
 
 const columns = [
   {
@@ -231,8 +241,25 @@ const handleCancel = () => {
     dataTree.value = [];
   }
 }
+
+const GetRoleDetails = async (id:number) => {
+  setLoading(true);
+  try {
+    const { data } = await getRoleDetails(id);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const menu of data.menus) {
+      chooseMenus.value.push(menu.id);
+    }
+    console.log(chooseMenus.value);
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
 const MenuRoleSettings = () => {
   GetMenuTree();
+  GetRoleDetails(5);
   settingsRoleVisible.value = true;
   title.value = '设置菜单权限';
 };
@@ -310,6 +337,10 @@ const DeleteRole = async (id:number) => {
     setLoading(false);
   }
 };
+
+
+
+
 const Confirm = () => {
   if (title.value === '创建角色'){
     RoleVisible.value = false;
