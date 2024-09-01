@@ -46,3 +46,4 @@ export function editMenu(id:number,data: MenuReq) {
 export function deleteMenu(id:number) {
     return axios.post<MenuRes>(`/sys/menu/delete/${id}`);
 }
+
