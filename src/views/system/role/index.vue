@@ -37,12 +37,12 @@
         </template>
 
         <template #action="{record}">
-          <a-button type="text" @click="MenuRoleSettings">
+          <a-button type="text" @click="MenuRoleSettings(record.id)">
             <template #icon>
               <icon-settings />
             </template>
             设置菜单权限</a-button>
-          <a-button type="text" @click="ApiRoleSettings">
+          <a-button type="text" @click="ApiRoleSettings(record.id)">
             <template #icon>
               <icon-settings />
             </template>
@@ -62,11 +62,11 @@
       <a-drawer  width="20%" :visible="settingsRoleVisible"  unmount-on-close @ok="handleOk" @cancel="handleCancel">
         <template #title>{{title}}</template>
         <a-tree
+            v-model:checked-keys="chooseTree"
             :data="dataTree"
             :block-node="true"
             :checkable="true"
-            size="large"
-            :selected-keys="chooseMenus"
+             size="large"
         />
       </a-drawer>
 
@@ -95,9 +95,10 @@
 import useLoading from '@/hooks/loading';
 import { ref } from 'vue';
 import {
+  createApiDetails,
   createRole,
-  deleteRole,
-  editRole,
+  deleteRole, editMenuDetails,
+  editRole, getApiDetails,
   getRoleDetails,
   getRoleList,
   Role,
@@ -115,9 +116,14 @@ const settingsRoleVisible = ref(false);
 const RoleVisible = ref(false);
 const title = ref('');
 const chooseId = ref(0);
-const chooseMenus = ref<number[]>([26, 27]);
+const chooseTree = ref([]);
+
 
 const columns = [
+  {
+    title: 'ID',
+    dataIndex: 'id',
+  },
   {
     title: '角色名称',
     dataIndex: 'name',
@@ -164,7 +170,7 @@ const groupByApiGroup = (data: any[]): TreeNode[] => {
     }
     acc[item.apiGroup].push({
       title: `${item.desc}`, // 这里将 method 和 path 组合作为 title
-      key: String(item.id),
+      key: Number(item.id),
     });
     return acc;
   }, {} as Record<string, TreeNode[]>);
@@ -191,7 +197,7 @@ const GetRoleList = async () => {
 const transformMenuTree = (data: any[]): any[] => {
   return data.map(item => ({
     title: item.name,
-    key: String(item.id),
+    key: Number(item.id),
     children: item.children ? transformMenuTree(item.children) : [],
     // 如果需要添加 icon，可以根据 item 的某个属性来动态生成
     // icon: item.icon ? () => h(IconComponent) : undefined,
@@ -223,12 +229,61 @@ const GetApiTree = async () => {
 };
 
 
+const GetApiDetails = async (id:number) => {
+  setLoading(true);
+  try {
+    const { data } = await getApiDetails(id);
+    if (data === null ){
+      chooseTree.value = [];
+    }
+    chooseTree.value = data as any;
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+const CreateApiDetails = async (id:number,data:any) => {
+  setLoading(true);
+  try {
+    await createApiDetails(id,data);
+    Message.success('设置成功');
+    chooseTree.value = [];
+  } catch (err) {
+    chooseTree.value = [];
+  } finally {
+    chooseTree.value = [];
+    setLoading(false);
+  }
+};
+
+
+const EditMenuDetails = async (id:number,data:any) => {
+  setLoading(true);
+  try {
+    await editMenuDetails(id,data);
+    Message.success('设置成功');
+    chooseTree.value = [];
+  } catch (err) {
+    chooseTree.value = [];
+  } finally {
+    chooseTree.value = [];
+    setLoading(false);
+  }
+};
+
+
 const handleOk = () => {
   if (title.value === '设置菜单权限'){
     settingsRoleVisible.value = false;
+    EditMenuDetails(chooseId.value,chooseTree.value);
   }
   if (title.value === '设置接口权限'){
     settingsRoleVisible.value = false;
+    chooseTree.value  = chooseTree.value.filter(item => typeof item !== 'string') as any;
+    CreateApiDetails(chooseId.value,chooseTree.value);
   }
 };
 const handleCancel = () => {
@@ -246,26 +301,25 @@ const GetRoleDetails = async (id:number) => {
   setLoading(true);
   try {
     const { data } = await getRoleDetails(id);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const menu of data.menus) {
-      chooseMenus.value.push(menu.id);
-    }
-    console.log(chooseMenus.value);
+    (chooseTree.value as any) = data.menus.map(item => Number(item.id));
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
     setLoading(false);
   }
 };
-const MenuRoleSettings = () => {
+const MenuRoleSettings = (id:number) => {
   GetMenuTree();
-  GetRoleDetails(5);
+  GetRoleDetails(id);
+  chooseId.value = id;
   settingsRoleVisible.value = true;
   title.value = '设置菜单权限';
 };
 
-const ApiRoleSettings = () => {
+const ApiRoleSettings = (id:number) => {
   GetApiTree();
+  GetApiDetails(id);
+  chooseId.value = id;
   settingsRoleVisible.value = true;
   title.value = '设置接口权限';
 };

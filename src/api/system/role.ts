@@ -1,4 +1,5 @@
 import axios from "axios";
+import {Menu} from "@/api/system/menu";
 
 export interface Role {
     id: number;
@@ -16,6 +17,19 @@ export interface RoleReq {
     name: string;
     desc: string;
 }
+
+export interface ApiDetailsRes {
+    code: number;
+    msg: string;
+    data: any;
+}
+
+
+
+export interface RoleDetailsRes {
+    menus:Menu[];
+}
+
 
 
 export function getRoleList() {
@@ -39,7 +53,18 @@ export function deleteRole(id:number) {
 
 
 export function getRoleDetails(id:number) {
-    return axios.get<any[]>(`/sys/role/get/${id}`);
+    return axios.get<RoleDetailsRes>(`/sys/role/get/${id}`);
+}
+
+export function getApiDetails(id:number) {
+    return axios.get<ApiDetailsRes>(`/sys/rbac/role/get/${id}`);
 }
 
 
+export function createApiDetails(id:number,data:any[]) {
+    return axios.post<ApiDetailsRes>(`/sys/rbac/create/${id}`,{"apis_id":data});
+}
+
+export function editMenuDetails(id:number,data:any[]) {
+    return axios.post<ApiDetailsRes>(`/sys/role/update/${id}`,{"menus":data});
+}
