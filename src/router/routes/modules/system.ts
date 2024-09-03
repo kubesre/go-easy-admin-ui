@@ -20,6 +20,8 @@ const DASHBOARD: AppRouteRecordRaw = {
                 locale: '用户管理',
                 requiresAuth: true,
                 roles: ['*'],
+                order: 1,
+                icon: 'icon-user',
             },
         },{
             path: 'role',
@@ -29,6 +31,8 @@ const DASHBOARD: AppRouteRecordRaw = {
                 locale: '角色管理',
                 requiresAuth: true,
                 roles: ['*'],
+                order: 2,
+                icon: 'icon-user-group',
             },
         },
         {
@@ -39,6 +43,8 @@ const DASHBOARD: AppRouteRecordRaw = {
                 locale: '菜单管理',
                 requiresAuth: true,
                 roles: ['*'],
+                order: 3,
+                icon: 'icon-apps',
             },
         },
         {
@@ -49,16 +55,8 @@ const DASHBOARD: AppRouteRecordRaw = {
                 locale: '接口管理',
                 requiresAuth: true,
                 roles: ['*'],
-            },
-        },
-        {
-            path: 'test',
-            name: 'test',
-            component: () => import('@/views/system/test/index.vue'),
-            meta: {
-                locale: 'test',
-                requiresAuth: true,
-                roles: ['*'],
+                order: 2,
+                icon: 'icon-desktop',
             },
         },
     ],
