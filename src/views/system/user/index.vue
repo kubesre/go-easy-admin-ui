@@ -23,7 +23,7 @@
           >
         </a-col>
       </a-row>
-      <a-table :loading="loading" :columns="columns" :data="tables">
+      <a-table :loading="loading" :columns="columns" :data="tables" :pagination="pagination" @page-change="onPageChange">
         <template #avatar="{ record }">
           <a-avatar :src="record.avatar">
             <img
@@ -33,7 +33,7 @@
           </a-avatar>
         </template>
         <template #status="{record}">
-          <a-switch v-model="record.status" :checked-value="1" :unchecked-value="2"></a-switch>
+          <a-switch v-model="record.status" :checked-value="1" :unchecked-value="2" @change="UserStatusChange(record)"></a-switch>
         </template>
         <template #roles="{record}">
           <a-space>
@@ -193,6 +193,15 @@ const changeSwitch  = (value:number) => {
   form.value.status = value
 };
 
+
+// 分页
+const pagination = ref({
+  total: 0,
+  pageSize: 10,
+  current: 1,
+});
+
+
 // 表单
 const form = ref<UserReq>({
   userName: '',
@@ -221,8 +230,9 @@ const formReset = () => {
 const GetUserList = async () => {
   setLoading(true);
   try {
-    const { data } = await getUserList({page:1, limit: 10});
+    const { data } = await getUserList({page:pagination.value.current, limit: pagination.value.pageSize});
     tables.value = data.Items;
+    pagination.value.total = data.Total;
   } catch (err) {
     // you can report use errorHandler or other
   } finally {
@@ -240,12 +250,38 @@ const GetRoleList = async () => {
     setLoading(false);
   }
 };
-
+const onPageChange = (page: number) => {
+  pagination.value.current = page;
+  GetUserList();
+};
 GetUserList();
 GetRoleList();
 const CreateApiOpen = () => {
   visible.value = true;
   title.value = '创建用户';
+};
+
+const UserStatusChange = async (row:any) => {
+  setLoading(true);
+  try {
+    form.value.userName = row.userName;
+    form.value.nickName = row.nickName;
+    form.value.email = row.email;
+    form.value.phone = row.phone;
+    form.value.status = row.status;
+    form.value.roles = row.roles.map((role: any) => role.id);
+    form.value.avatar = row.avatar;
+    await editUser(row.id,form.value);
+    if (row.status === 2) {
+      Message.success('已禁用');
+    } else {
+      Message.success('已启用');}
+    await GetUserList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
 };
 
 

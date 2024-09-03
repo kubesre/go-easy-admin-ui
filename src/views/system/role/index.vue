@@ -33,7 +33,7 @@
           </a-avatar>
         </template>
         <template #status="{record}">
-          <a-switch v-model="record.status" :checked-value="1" :unchecked-value="2"></a-switch>
+          <a-switch v-model="record.status" :checked-value="1" :unchecked-value="2" @change="RoleStatusChange(record)"></a-switch>
         </template>
 
         <template #action="{record}">
@@ -108,6 +108,7 @@ import {
 import {createMenu, deleteMenu, getMenuList, Menu, MenuReq} from "@/api/system/menu";
 import {getApisList} from "@/api/system/apis";
 import {Message} from "@arco-design/web-vue";
+import {editUser} from "@/api/system/user";
 
 const { setLoading, loading } = useLoading(true);
 const tables = ref<Role[]>([]);
@@ -161,6 +162,7 @@ interface TreeNode {
 const form = ref<RoleReq>({
   name: '',
   desc: '',
+  status: 1,
 });
 
 const groupByApiGroup = (data: any[]): TreeNode[] => {
@@ -274,6 +276,26 @@ const EditMenuDetails = async (id:number,data:any) => {
   }
 };
 
+const RoleStatusChange = async (row:any) => {
+  setLoading(true);
+  try {
+    form.value.desc = row.desc;
+    form.value.status = row.status;
+    form.value.name = row.name;
+    await editRole(row.id,form.value);
+    if (row.status === 2) {
+      Message.success('已禁用');
+    } else {
+      Message.success('已启用');}
+    await getRoleList();
+  } catch (err) {
+    // you can report use errorHandler or other
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
 const handleOk = () => {
   if (title.value === '设置菜单权限'){
@@ -338,6 +360,7 @@ const EditRoleOpen = (row:any) => {
   title.value = '编辑角色';
   form.value.desc = row.desc;
   form.value.name = row.name;
+  form.value.status = row.status;
   chooseId.value = row.id;
 };
 const formReset = () =>{

@@ -16,6 +16,7 @@ export interface RoleListRes {
 export interface RoleReq {
     name: string;
     desc: string;
+    status: number;
 }
 
 export interface ApiDetailsRes {
