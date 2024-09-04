@@ -49,3 +49,11 @@ export function editUser(id:number,data: UserReq) {
 export function deleteUser(id:number) {
     return axios.post<UserRes>(`/sys/user/delete/${id}`);
 }
+
+
+export function getUserMenuList() {
+    return axios.get<any>('/sys/login/info');
+}
+
+
+
