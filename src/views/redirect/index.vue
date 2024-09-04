@@ -9,7 +9,6 @@
   const route = useRoute();
 
   const gotoPath = route.params.path as string;
-
   router.replace({ path: gotoPath });
 </script>
 

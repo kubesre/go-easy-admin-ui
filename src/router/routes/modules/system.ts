@@ -1,3 +1,4 @@
+import {getUserMenuList} from "@/api/system/user";
 import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
 
@@ -13,7 +14,7 @@ const DASHBOARD: AppRouteRecordRaw = {
     },
     children: [
         {
-            path: 'user',
+            path: '/user',
             name: 'user',
             component: () => import('@/views/system/user/index.vue'),
             meta: {
