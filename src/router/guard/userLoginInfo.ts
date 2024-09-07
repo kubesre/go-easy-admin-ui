@@ -3,14 +3,14 @@ import NProgress from 'nprogress'; // progress bar
 
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
-import {GetRouterList} from "@/router/routes/modules/dynamic";
+import {GetRouterList} from "@/router/routes";
 
 export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     NProgress.start();
     const userStore = useUserStore();
     if (isLogin()) {
-      await GetRouterList()
+      GetRouterList()
       if (userStore.role) {
         next();
       } else {
