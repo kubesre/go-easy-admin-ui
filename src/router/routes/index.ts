@@ -1,9 +1,6 @@
 import type {RouteRecordNormalized, RouteRecordRaw} from 'vue-router';
 import {getUserMenuList} from "@/api/system/user";
-import {Message} from "@arco-design/web-vue";
-import {DEFAULT_LAYOUT} from "@/router/routes/base";
 import {AppRouteRecordRaw} from "@/router/routes/types";
-import {defineAsyncComponent, resolveComponent} from "vue";
 // eslint-disable-next-line import/no-cycle
 import router from "@/router";
 
@@ -33,16 +30,13 @@ export const appExternalRoutes: RouteRecordNormalized[] = formatModules(
   []
 );
 
-export const dynamicRoutes: AppRouteRecordRaw[] = [];
-
 // 动态导入函数，根据组件名导入组件
 // 转换函数：将源数据转换为 RouteRecordRaw 格式
-const convertToRouteRecordRaw = (data: any): AppRouteRecordRaw  => {
+const convertToRouteRecordRaw = (data: any): RouteRecordRaw  => {
   const res = componentList[`/src${data.component}`];
   return {
     path: data.path,
     name: data.name_code,
-    redirect: data.path,
     component: res,
 // 动态加载组件
     meta: {
@@ -55,18 +49,13 @@ const convertToRouteRecordRaw = (data: any): AppRouteRecordRaw  => {
     children: data.children ? data.children.map(convertToRouteRecordRaw) : undefined, // 递归处理子节点
   };
 };
-export const GetRouterList = async () => {
+export const GetRouterList =  () => {
   getUserMenuList().then(res => {
     // eslint-disable-next-line no-restricted-syntax
     for (const item of res.data.menus) {
-      const data: AppRouteRecordRaw = convertToRouteRecordRaw(item);
-      dynamicRoutes.push(data);
+      const data: RouteRecordRaw = convertToRouteRecordRaw(item);
+      router.addRoute(data);
+      console.log(data)
     }
-  })}
-
-export const asyncRoutes = async ()=>{
-  await  GetRouterList();
-  dynamicRoutes.forEach((route)=>{
-    router.addRoute(route as RouteRecordRaw)
   })
 }

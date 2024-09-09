@@ -4,14 +4,14 @@ import NProgress from 'nprogress'; // progress bar
 import { useUserStore } from '@/store';
 import { isLogin } from '@/utils/auth';
 // eslint-disable-next-line import/no-cycle
-import {asyncRoutes} from "@/router/routes";
+import {GetRouterList} from "@/router/routes";
 
 export default function setupUserLoginInfoGuard(router: Router) {
   router.beforeEach(async (to, from, next) => {
     NProgress.start();
     const userStore = useUserStore();
     if (isLogin()) {
-      await asyncRoutes()
+      GetRouterList();
       if (userStore.role) {
         next();
       } else {
