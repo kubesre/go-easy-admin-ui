@@ -3,6 +3,7 @@ import NProgress from 'nprogress'; // progress bar
 
 import usePermission from '@/hooks/permission';
 import { useUserStore, useAppStore } from '@/store';
+// eslint-disable-next-line import/no-cycle
 import { appRoutes } from '../routes';
 import { WHITE_LIST, NOT_FOUND } from '../constants';
 

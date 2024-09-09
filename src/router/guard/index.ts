@@ -1,5 +1,6 @@
 import type { Router } from 'vue-router';
 import { setRouteEmitter } from '@/utils/route-listener';
+// eslint-disable-next-line import/no-cycle
 import setupUserLoginInfoGuard from './userLoginInfo';
 import setupPermissionGuard from './permission';
 
