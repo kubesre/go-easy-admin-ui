@@ -3,12 +3,16 @@ import {getUserMenuList} from "@/api/system/user";
 import {Message} from "@arco-design/web-vue";
 import {DEFAULT_LAYOUT} from "@/router/routes/base";
 import {AppRouteRecordRaw} from "@/router/routes/types";
-import {defineAsyncComponent} from "vue";
+import {defineAsyncComponent, resolveComponent} from "vue";
+// eslint-disable-next-line import/no-cycle
+import router from "@/router";
 
 const modules = import.meta.glob('./modules/*.ts', { eager: true });
 const externalModules = import.meta.glob('./externalModules/*.ts', {
   eager: false,
 });
+
+const componentList = import.meta.glob('@/views/**/**/*.vue');
 
 function formatModules(_modules: any, result: RouteRecordNormalized[]) {
   Object.keys(_modules).forEach((key) => {
@@ -29,14 +33,17 @@ export const appExternalRoutes: RouteRecordNormalized[] = formatModules(
   []
 );
 
+export const dynamicRoutes: AppRouteRecordRaw[] = [];
 
 // 动态导入函数，根据组件名导入组件
 // 转换函数：将源数据转换为 RouteRecordRaw 格式
 const convertToRouteRecordRaw = (data: any): AppRouteRecordRaw  => {
+  const res = componentList[`/src${data.component}`];
   return {
     path: data.path,
     name: data.name_code,
-    component:  () => import('@/views/system/user/index.vue'),
+    redirect: data.path,
+    component: res,
 // 动态加载组件
     meta: {
       locale: data.name,
@@ -48,13 +55,18 @@ const convertToRouteRecordRaw = (data: any): AppRouteRecordRaw  => {
     children: data.children ? data.children.map(convertToRouteRecordRaw) : undefined, // 递归处理子节点
   };
 };
-export const GetRouterList = () => {
+export const GetRouterList = async () => {
   getUserMenuList().then(res => {
     // eslint-disable-next-line no-restricted-syntax
     for (const item of res.data.menus) {
-      const routes: AppRouteRecordRaw = convertToRouteRecordRaw(item);
-      // @ts-ignore
-      appRoutes.push(routes as AppRouteRecordRaw);
-        console.log(routes);
+      const data: AppRouteRecordRaw = convertToRouteRecordRaw(item);
+      dynamicRoutes.push(data);
     }
   })}
+
+export const asyncRoutes = async ()=>{
+  await  GetRouterList();
+  dynamicRoutes.forEach((route)=>{
+    router.addRoute(route as RouteRecordRaw)
+  })
+}
